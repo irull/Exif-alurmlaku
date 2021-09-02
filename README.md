@@ -1,2 +1,2 @@
-# photobooth
-membuat fitur fotobooth menggunakan html, css dan javasript
+# Exif-Data
+MEnampilkan metadata pada Foto atau gambar
