@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet"
+    />
+
+  <!-- Menyisipkan library Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyF5Xm1dEYWWQw8TGmMgeOzUrULM7lS3k&callback=initMap"></script>
+
+   <script src="exif.js"></script>
+
+  
+    <title>MAPS | AlurMLaku</title>
+  </head>
+  <body>
+    <div class="header bg-primary">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">AlurMlaku</a>
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNavAltMarkup"
+              aria-controls="navbarNavAltMarkup"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav ms-auto">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                <a class="nav-link" href="#">Journey</a>
+                <a class="nav-link" href="#">About</a>
+                <a class="nav-link" href="#">Contacts</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row mt-5">
+        <div class="col">
+          <!-- Elemen yang akan menjadi kontainer peta -->
+            <div id="googleMap" style="width: 100%; height: 580px"></div>
+        </div>
+        <div class="col">
+          <div class="mb-3">
+            <!-- show my position -->
+            <button type="button" onclick="showPosition();">Show My Position</button>
+            <div id="result">
+              <!--Position information will be inserted here-->
+            </div>
+            <!-- end show my position -->
+
+            <form action="" method="post">
+              <p>Location by click</p>
+              <input type="text" id="lat" name="lat" value="" placeholder="Latitude" />
+              <input
+                type="text"
+                id="lng"
+                name="lng"
+                value=""
+                placeholder="Longtitude"
+              />
+            </form>
+
+            <label for="formFile" class="form-label"></label>
+            <input class="form-control" type="file" id="uploadFile" accept="image/*">
+          </div>
+          <img
+          src="https://fakeimg.pl/350x200/?text=No image"
+          class=""
+          id="preview"
+          alt="Uploaded image"
+          height="260px"
+        /><br />
+        <!-- <div class="uploadSec">
+          <label for="uploadFile">Upload Image Here</label><br />
+        </div> -->
+        
+        <div class="details">
+          <p>Latitude : <span id="Lati"></span></p>
+          <p>Longitude : <span id="Long"></span></p>
+          <p>Camera Model / Maker : <span id="cmm"></span></p>
+          <p hidden>Height x Width : <span id="resolution"></span></p>
+          <p>Capture Time : <span id="datetime"></span></p>
+          <p hidden>ISO SpeedRatings : <span id="iso"></span></p>
+          <p hidden>Shuttor Speed : <span id="stp"></span></p>
+        </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    -->
+
+
+    <!-- Exif  -->
+    <script>
+      (function () {
+        document.getElementById("uploadFile").onchange = function (el) {
+          readURL(this);
+          EXIF.getData(el.target.files[0], function () {
+            EXIF.getData(this, () => {
+              console.log(this);
+
+              if (Object.keys(this.exifdata).length > 0) {
+                //display camera details
+                camera_details(this.exifdata);
+                //display image details
+                generate_lat_lang(this);
+              } else {
+                noDataAvailable();
+              }
+            });
+          });
+        };
+        var image = document.getElementsByClassName("DisplayImage");
+        for (var i = 0; i < image.length; i++) {
+          image[i].addEventListener("click", function () {
+            EXIF.getData(this, () => {
+              if (Object.keys(this.exifdata).length > 0) {
+                //display camera details
+                camera_details(this.exifdata);
+                //display image details
+                generate_lat_lang(this);
+              } else {
+                noDataAvailable();
+              }
+            });
+          });
+        }
+      })();
+
+      function readURL(input) {
+        ///reading the Uploading file
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+
+          reader.onload = function (e) {
+            document.getElementById("preview").src = e.target.result;
+          };
+
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      function noDataAvailable() {
+        document.getElementById("Lati").innerText = "N/A";
+        document.getElementById("Long").innerText = "N/A";
+        document.getElementById("cmm").innerText = "N/A";
+        document.getElementById("resolution").innerText = "N/A";
+        document.getElementById("datetime").innerText = "N/A";
+        document.getElementById("iso").innerText = "N/A";
+        document.getElementById("stp").innerText = "N/A";
+        alert("No GPS Data Available");
+      }
+
+      //getting camera details
+      function camera_details(exifData = "") {
+        var cmm = "N/A";
+        var company = "N/A";
+        if (exifData.Model) {
+          cmm = exifData.Model;
+        }
+        if (exifData.Make) {
+          company = exifData.Make;
+        }
+
+        //Camera Model
+        document.getElementById("cmm").innerText = cmm + "-" + company;
+        //Image Resolution
+        // document.getElementById("resolution").innerText = exifData.ImageHeight
+        //   ? exifData.ImageHeight
+        //   : "N/A" + " " + exifData.ImageWidth
+        //   ? exifData.ImageWidth
+        //   : "N/A";
+        //Image taken time
+        document.getElementById("datetime").innerText =
+          exifData.DateTimeOriginal ? exifData.DateTimeOriginal : "N/A";
+        //Iso speed
+        // document.getElementById("iso").innerText = exifData.ISOSpeedRatings
+        //   ? exifData.ISOSpeedRatings
+        //   : "N/A";
+        //lense shutter speed
+        // document.getElementById("stp").innerText = exifData.ShutterSpeedValue
+        //   ? exifData.ShutterSpeedValue
+        //   : "N/A";
+      }
+
+      function generate_lat_lang(imageData = "") {
+        //geting cordinates of latitude
+        var latDegree = imageData.exifdata.GPSLatitude[0].numerator;
+        var latMinute = imageData.exifdata.GPSLatitude[1].numerator;
+        var latSecond =
+          imageData.exifdata.GPSLatitude[2].numerator /
+          imageData.exifdata.GPSLatitude[2].denominator;
+
+        document.getElementById("Lati").innerText = (
+          latDegree +
+          latMinute / 60 +
+          latSecond / 3600
+        ).toFixed(8);
+
+        //geting cordinates of longitude
+        var lonDegree = imageData.exifdata.GPSLongitude[0].numerator;
+        var lonMinute = imageData.exifdata.GPSLongitude[1].numerator;
+        var lonSecond =
+          imageData.exifdata.GPSLongitude[2].numerator /
+          imageData.exifdata.GPSLongitude[2].denominator;
+        document.getElementById("Long").innerText = (
+          lonDegree +
+          lonMinute / 60 +
+          lonSecond / 3600
+        ).toFixed(8);
+      }
+    </script>
+
+    <!-- End Exif -->
+
+    <!-- Show My Position -->
+    <script>
+      function showPosition() {
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showMap, showError);
+            } else {
+                alert("Sorry, your browser does not support HTML5 geolocation.");
+            }
+        }
+        
+        // Define callback function for successful attempt
+        function showMap(position) {
+            // Get location data
+            lat = position.coords.latitude;
+            long = position.coords.longitude;
+            var latlong = new google.maps.LatLng(lat, long);
+            
+            var myOptions = {
+                center: latlong,
+                zoom: 16,
+                mapTypeControl: true,
+                navigationControlOptions: {
+                    style:google.maps.NavigationControlStyle.SMALL
+                }
+            }
+            
+            var map = new google.maps.Map(document.getElementById("googleMap"), myOptions);
+            var marker = new google.maps.Marker({ position:latlong, map:map, title:"You are here!" });
+        }
+        
+        // Define callback function for failed attempt
+        function showError(error) {
+            if(error.code == 1) {
+                result.innerHTML = "You've decided not to share your position, but it's OK. We won't ask you again.";
+            } else if(error.code == 2) {
+                result.innerHTML = "The network is down or the positioning service can't be reached.";
+            } else if(error.code == 3) {
+                result.innerHTML = "The attempt timed out before it could get the location data.";
+            } else {
+                result.innerHTML = "Geolocation failed due to unknown error.";
+            }
+        }
+    </script>
+    <!-- End Show My Position -->
+
+    <!-- Maps -->
+    <script>
+      // variabel global marker
+      var marker;
+  
+        function taruhMarker(peta, posisiTitik) {
+        if (marker) {
+          // pindahkan marker
+          marker.setPosition(posisiTitik);
+        } else {
+          // buat marker baru
+          marker = new google.maps.Marker({
+            position: posisiTitik,
+            map: peta,
+          });
+        }
+         // isi nilai koordinat ke form
+        document.getElementById("lat").value = posisiTitik.lat();
+        document.getElementById("lng").value = posisiTitik.lng();
+      }
+  
+      // fungsi initialize untuk mempersiapkan peta
+      function initialize() {
+        var propertiPeta = {
+          center: new google.maps.LatLng(-6.209004369420562, 106.8473994296479),
+          // center: new google.maps.LatLng(
+          //   document.getElementById("Lat").value =posisiTitik.lat(),
+          //   document.getElementById("Long").value =posisiTitik.long()
+          // ),
+          zoom: 9, //Tingkat skala (0:Bumi, 1:Peta Dunia, 5:Landmass/Continent, 10:Kota, 15:Jalan, 20:Bangunan)
+          mapTypeId: google.maps.MapTypeId.ROADMAP, // Tipe MAPS yang digunakan (ROADMAP, satelite, terrain, hybrit)
+        };
+  
+        var peta = new google.maps.Map(
+          document.getElementById("googleMap"),
+          propertiPeta
+        );
+  
+        // membuat Marker
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(-6.209004369420562, 106.8473994296479),
+          map: peta,
+          // animation: google.maps.Animation.DROP, // DROP //Menambahkan Animasi MARKER BOUNCE
+          icon: "https://icons.iconarchive.com/icons/flaticonmaker/flat-style/32/flag-icon.png",
+        });
+  
+        // even listner ketika peta diklik
+        google.maps.event.addListener(peta, "click", function (event) {
+          taruhMarker(this, event.latLng);
+        });
+      }
+  
+      // event jendela di-load
+      google.maps.event.addDomListener(window, "load", initialize);
+    </script>
+    <!-- End Maps -->
+  
+  </body>
+</html>
